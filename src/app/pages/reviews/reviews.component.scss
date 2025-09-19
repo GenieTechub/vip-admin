@@ -1,0 +1,124 @@
+.reviews-container {
+  padding: 20px;
+  
+  .header {
+    margin-bottom: 20px;
+    
+    h1 {
+      margin: 0;
+      color: #333;
+    }
+  }
+  
+  .filter-card {
+    margin-bottom: 20px;
+    
+    .filters {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      
+      mat-form-field {
+        min-width: 200px;
+      }
+    }
+  }
+  
+  .table-card {
+    .table-container {
+      overflow-x: auto;
+      
+      .reviews-table {
+        width: 100%;
+        
+        .product-info {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          
+          .product-image {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+          }
+          
+          .product-name {
+            font-weight: 500;
+          }
+          
+          .product-id {
+            font-size: 12px;
+            color: #666;
+          }
+        }
+        
+        .user-info {
+          .user-name {
+            font-weight: 500;
+          }
+          
+          .user-id {
+            font-size: 12px;
+            color: #666;
+          }
+        }
+        
+        .rating-display {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          
+          .stars {
+            display: flex;
+            
+            mat-icon {
+              font-size: 16px;
+              width: 16px;
+              height: 16px;
+              color: #ddd;
+              
+              &.filled {
+                color: #ffc107;
+              }
+            }
+          }
+          
+          .rating-number {
+            font-size: 12px;
+            color: #666;
+          }
+        }
+        
+        .comment-text {
+          max-width: 200px;
+          word-wrap: break-word;
+        }
+        
+        .action-buttons {
+          display: flex;
+          gap: 8px;
+        }
+      }
+      
+      .loading-container {
+        display: flex;
+        justify-content: center;
+        padding: 40px;
+      }
+      
+      .no-data {
+        text-align: center;
+        padding: 40px;
+        color: #666;
+        
+        mat-icon {
+          font-size: 48px;
+          width: 48px;
+          height: 48px;
+          margin-bottom: 16px;
+        }
+      }
+    }
+  }
+}

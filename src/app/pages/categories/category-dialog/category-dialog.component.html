@@ -1,0 +1,82 @@
+<div class="category-dialog">
+  <h2 mat-dialog-title>{{ isEditMode ? 'Edit Category' : 'Add New Category' }}</h2>
+  
+  <mat-dialog-content>
+    <form [formGroup]="categoryForm" class="category-form">
+      <!-- Image Upload Section -->
+      <div class="image-upload-section">
+        <div class="image-preview" *ngIf="imagePreview">
+          <img [src]="imagePreview" alt="Category preview">
+          <button mat-icon-button class="remove-image" (click)="removeImage()" type="button">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        
+        <div class="upload-area" *ngIf="!imagePreview">
+          <mat-icon>cloud_upload</mat-icon>
+          <p>Click to upload category image</p>
+        </div>
+        
+        <input type="file" 
+               #fileInput 
+               (change)="onFileSelected($event)" 
+               accept="image/*" 
+               style="display: none;">
+        
+        <button mat-stroked-button 
+                type="button" 
+                (click)="fileInput.click()"
+                class="upload-button">
+          <mat-icon>add_photo_alternate</mat-icon>
+          {{ imagePreview ? 'Change Image' : 'Upload Image' }}
+        </button>
+      </div>
+
+      <!-- Category Details -->
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Category Name</mat-label>
+        <input matInput formControlName="name" required>
+        <mat-error *ngIf="categoryForm.get('name')?.hasError('required')">
+          Category name is required
+        </mat-error>
+        <mat-error *ngIf="categoryForm.get('name')?.hasError('minlength')">
+          Name must be at least 2 characters
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Description</mat-label>
+        <textarea matInput 
+                  formControlName="description" 
+                  rows="4" 
+                  required
+                  placeholder="Enter category description..."></textarea>
+        <mat-error *ngIf="categoryForm.get('description')?.hasError('required')">
+          Description is required
+        </mat-error>
+        <mat-error *ngIf="categoryForm.get('description')?.hasError('minlength')">
+          Description must be at least 10 characters
+        </mat-error>
+      </mat-form-field>
+
+      <div class="checkbox-section">
+        <mat-checkbox formControlName="isActive">
+          Active Category
+        </mat-checkbox>
+      </div>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="onCancel()" [disabled]="loading">
+      Cancel
+    </button>
+    <button mat-raised-button 
+            color="primary" 
+            (click)="onSubmit()" 
+            [disabled]="categoryForm.invalid || loading">
+      <span *ngIf="loading">{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
+      <span *ngIf="!loading">{{ isEditMode ? 'Update Category' : 'Create Category' }}</span>
+    </button>
+  </mat-dialog-actions>
+</div>

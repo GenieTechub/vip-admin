@@ -1,0 +1,155 @@
+.products-container {
+  padding: 24px;
+  background-color: #f5f5f5;
+  min-height: calc(100vh - 64px);
+}
+
+.page-header {
+  margin-bottom: 24px;
+  
+  h1 {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-weight: 500;
+  }
+  
+  p {
+    margin: 0;
+    color: #666;
+  }
+}
+
+.filter-card {
+  margin-bottom: 24px;
+  
+  .filter-row {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    flex-wrap: wrap;
+    
+    .search-field {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    mat-form-field {
+      min-width: 150px;
+    }
+  }
+}
+
+.table-card {
+  .table-container {
+    position: relative;
+    
+    .products-table {
+      width: 100%;
+      
+      .product-image {
+        img {
+          width: 50px;
+          height: 50px;
+          border-radius: 8px;
+          object-fit: cover;
+        }
+      }
+      
+      .product-info {
+        display: flex;
+        flex-direction: column;
+        
+        .product-name {
+          font-weight: 500;
+          color: #333;
+          margin-bottom: 4px;
+        }
+        
+        .product-description {
+          font-size: 12px;
+          color: #666;
+        }
+      }
+      
+      .price {
+        font-weight: 600;
+        color: #2e7d32;
+        font-size: 16px;
+      }
+      
+      .low-stock {
+        color: #f44336;
+        font-weight: 500;
+      }
+      
+      .action-buttons {
+        display: flex;
+        gap: 8px;
+      }
+    }
+    
+    .loading-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    
+    .no-data {
+      text-align: center;
+      padding: 40px;
+      color: #999;
+      
+      mat-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+        margin-bottom: 16px;
+      }
+    }
+  }
+}
+
+.status-active {
+  background-color: #e8f5e8 !important;
+  color: #4caf50 !important;
+}
+
+.status-inactive {
+  background-color: #ffebee !important;
+  color: #f44336 !important;
+}
+
+@media (max-width: 768px) {
+  .filter-row {
+    flex-direction: column;
+    align-items: stretch;
+    
+    .search-field {
+      min-width: auto;
+    }
+  }
+}
+
+// Material overrides
+::ng-deep {
+  .mat-mdc-paginator {
+    border-top: 1px solid #e0e0e0;
+    background-color: #f8f9fa;
+  }
+  
+  .mat-mdc-chip.mat-primary {
+    background-color: #4caf50;
+    color: white;
+  }
+  
+  .mat-mdc-chip.mat-warn {
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .mat-mdc-chip.mat-accent {
+    background-color: #ff9800;
+    color: white;
+  }
+}
