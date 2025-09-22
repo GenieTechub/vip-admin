@@ -1,0 +1,114 @@
+<main>
+    <div class="page-header">
+        <h1>Users Management</h1>
+        <p>Manage all registered users</p>
+    </div>
+
+    <div class="table-container">
+        <p-table #dt [value]="roles" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5, 10, 20]"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            styleClass="p-datatable-striped p-datatable-gridlines p-datatable-sm"
+            [globalFilterFields]="['id','rolename','rolelevel','createddate']">
+
+            <!-- Caption with title and search -->
+            <ng-template pTemplate="caption">
+                <div class="table-caption-wrapper">
+                    <div class="download-wrapper" style="display: flex; gap: 8px;">
+                        <p-button label="Excel" icon="pi pi-file-excel" styleClass="p-button-success p-button-sm">
+                        </p-button>
+
+                        <p-button label="CSV" icon="pi pi-file" styleClass="p-button-info p-button-sm">
+                        </p-button>
+
+                        <p-button label="PDF" icon="pi pi-file-pdf" styleClass="p-button-danger p-button-sm">
+                        </p-button>
+                    </div>
+                    <div class="search-wrapper">
+                        <p-floatlabel variant="on" style="width: 100%">
+                            <input pInputText id="search_role" autocomplete="off" />
+                            <label for="search_role">Search</label>
+                        </p-floatlabel>
+                        <button (click)="showDialog(null)">Add Role</button>
+                    </div>
+                </div>
+            </ng-template>
+
+            <!-- Table Header -->
+            <ng-template pTemplate="header">
+                <tr>
+                    <th pSortableColumn="id">ID <p-sortIcon field="id"></p-sortIcon></th>
+                    <th pSortableColumn="rolename">Role Name <p-sortIcon field="rolename"></p-sortIcon></th>
+                    <th pSortableColumn="rolelevel">Role Level <p-sortIcon field="rolelevel"></p-sortIcon></th>
+                    <th pSortableColumn="createddate">Created Date <p-sortIcon field="createddate"></p-sortIcon></th>
+                    <th>Actions</th> <!-- 👈 New Actions column -->
+                </tr>
+            </ng-template>
+
+            <!-- Table Body -->
+            <ng-template pTemplate="body" let-role>
+                <tr>
+                    <td>{{ role.id }}</td>
+                    <td>{{ role.rolename }}</td>
+                    <td>{{ role.rolelevel }}</td>
+                    <td>{{ role.createddate | date:'mediumDate' }}</td>
+                    <td>
+                        <button pButton icon="pi pi-pencil" class="p-button-rounded p-button-text p-button-info"
+                            (click)="showDialog(role)"></button>
+                        <button pButton icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger ml-2"
+                            (click)="deleteRole(role)"></button>
+                    </td>
+                </tr>
+            </ng-template>
+
+            <!-- Paginator left -->
+            <ng-template pTemplate="paginatorleft">
+                <button pButton type="button" icon="pi pi-plus" label="Add" class="p-button-text"></button>
+            </ng-template>
+
+            <!-- Paginator right -->
+            <ng-template pTemplate="paginatorright">
+                <button pButton type="button" icon="pi pi-cloud-download" label="Export" class="p-button-text"></button>
+            </ng-template>
+        </p-table>
+    </div>
+
+</main>
+
+
+
+<p-dialog header="Add Roles" [dismissableMask]="true" [modal]="true" [(visible)]="visible" [style]="{ width: '25rem' }"
+    [baseZIndex]="20000" [autoZIndex]="true">
+    <form class="form-wrapper">
+        <div class="input-wrapper">
+            <p-floatlabel variant="on">
+                <input pInputText id="on_label" autocomplete="off" />
+                <label for="on_label">Role Name</label>
+            </p-floatlabel>
+        </div>
+        <div class="input-wrapper">
+            <p-floatlabel variant="on">
+                <input pInputText id="on_label" autocomplete="off" />
+                <label for="on_label">Role Level</label>
+            </p-floatlabel>
+
+        </div>
+    </form>
+    <div class="flex justify-end gap-2 p-input-footer">
+        <p-button label="Cancel" severity="secondary" (click)="visible = false" />
+        <p-button label="Save" (click)="visible = false" />
+    </div>
+</p-dialog>
+
+
+
+<p-dialog header="Delete" [dismissableMask]="true" [modal]="true" [(visible)]="deleteRoleVisible"
+    [style]="{ width: '25rem' }" [baseZIndex]="20000" [autoZIndex]="true">
+    <div class="p-dialog-content">
+        <p>Do you want to delete this record?</p>
+    </div>
+    <div class="flex justify-end gap-2 p-input-footer">
+        <p-button label="Cancel" severity="secondary" (click)="deleteRoleVisible = false" />
+        <p-button label="Save" severity="danger" (click)="deleteRoleVisible = false" />
+    </div>
+</p-dialog>

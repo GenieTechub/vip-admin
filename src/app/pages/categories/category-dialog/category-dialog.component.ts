@@ -9,6 +9,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryService } from '../../../services/category.service';
+import { DialogModule } from 'primeng/dialog';
 
 @Component({
   selector: 'app-category-dialog',
@@ -21,7 +22,8 @@ import { CategoryService } from '../../../services/category.service';
     MatInputModule,
     MatButtonModule,
     MatCheckboxModule,
-    MatIconModule
+    MatIconModule,
+    DialogModule
   ],
   templateUrl: './category-dialog.component.html',
   styleUrls: ['./category-dialog.component.scss']
@@ -55,7 +57,7 @@ export class CategoryDialogComponent implements OnInit {
         description: this.data.description,
         isActive: this.data.isActive !== false
       });
-      
+
       if (this.data.imageUrl) {
         this.imagePreview = this.data.imageUrl;
       }
@@ -66,7 +68,7 @@ export class CategoryDialogComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
-      
+
       // Create image preview
       const reader = new FileReader();
       reader.onload = (e: any) => {

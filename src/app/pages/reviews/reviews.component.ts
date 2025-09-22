@@ -1,18 +1,18 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router } from '@angular/router';
 import { ReviewService } from '../../services/review.service';
+import { ToastModule } from 'primeng/toast';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectButtonModule } from 'primeng/selectbutton';
+import { TooltipModule } from 'primeng/tooltip';
+import { MessageService } from 'primeng/api';
+import { SelectModule } from 'primeng/select';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { MatIconModule } from '@angular/material/icon';
 
 @Component({
   selector: 'app-reviews',
@@ -20,35 +20,42 @@ import { ReviewService } from '../../services/review.service';
   imports: [
     CommonModule,
     FormsModule,
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatProgressSpinnerModule,
-    MatSnackBarModule,
-    MatTooltipModule
+    TableModule,
+    ButtonModule,
+    InputTextModule,
+    SelectButtonModule,
+    TooltipModule,
+    ToastModule,
+    SelectModule,
+    FloatLabelModule,
+    MatIconModule
   ],
   templateUrl: './reviews.component.html',
-  styleUrls: ['./reviews.component.scss']
+  styleUrls: ['./reviews.component.scss'],
+  providers: [MessageService]
 })
 export class ReviewsComponent implements OnInit {
   reviews: any[] = [];
   loading = false;
   searchTerm = '';
-  selectedRating = '';
-  
-  displayedColumns: string[] = ['product', 'user', 'rating', 'comment', 'date', 'actions'];
-  
+  selectedRating: string | null = null;
+
+  ratingOptions = [
+    { label: 'All Ratings', value: null },
+    { label: '5 Stars', value: '5' },
+    { label: '4 Stars', value: '4' },
+    { label: '3 Stars', value: '3' },
+    { label: '2 Stars', value: '2' },
+    { label: '1 Star', value: '1' }
+  ];
+
   private searchTimeout: any;
 
   constructor(
     private reviewService: ReviewService,
     private router: Router,
-    private snackBar: MatSnackBar
-  ) {}
+    private messageService: MessageService
+  ) { }
 
   ngOnInit(): void {
     this.loadReviews();
@@ -56,50 +63,39 @@ export class ReviewsComponent implements OnInit {
 
   loadReviews(): void {
     this.loading = true;
-    
+
     const params: any = {};
-    
-    if (this.searchTerm && this.searchTerm.trim()) {
-      params.search = this.searchTerm.trim();
-    }
-    
-    if (this.selectedRating) {
-      params.rating = this.selectedRating;
-    }
-    
+    if (this.searchTerm?.trim()) params.search = this.searchTerm.trim();
+    if (this.selectedRating) params.rating = this.selectedRating;
+
     this.reviewService.getAllReviews(params).subscribe({
-      next: (response: any) => {
-        this.reviews = response.reviews || [];
+      next: (res: any) => {
+        this.reviews = res.reviews || [];
         this.loading = false;
       },
-      error: (error: any) => {
-        console.error('Error loading reviews:', error);
+      error: (err) => {
+        console.error('Error loading reviews:', err);
         this.loading = false;
-        this.snackBar.open('Error loading reviews', 'Close', { duration: 3000 });
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to load reviews' });
       }
     });
   }
 
   applyFilter(): void {
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
-    }
-    
-    this.searchTimeout = setTimeout(() => {
-      this.loadReviews();
-    }, 300);
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+    this.searchTimeout = setTimeout(() => this.loadReviews(), 300);
   }
 
   deleteReview(review: any): void {
     if (confirm(`Are you sure you want to delete this review by ${review.user?.name || 'Anonymous'}?`)) {
       this.reviewService.deleteReview(review.id).subscribe({
-        next: (response: any) => {
-          this.snackBar.open('Review deleted successfully', 'Close', { duration: 3000 });
+        next: () => {
+          this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Review deleted successfully' });
           this.loadReviews();
         },
-        error: (error: any) => {
-          console.error('Error deleting review:', error);
-          this.snackBar.open('Error deleting review', 'Close', { duration: 3000 });
+        error: (err) => {
+          console.error('Error deleting review:', err);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete review' });
         }
       });
     }

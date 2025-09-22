@@ -1,123 +1,98 @@
-<div class="users-container">
+<main>
   <div class="page-header">
     <h1>Users Management</h1>
     <p>Manage all registered users</p>
   </div>
 
-  <!-- Search and Filters -->
-  <mat-card class="filter-card">
-    <mat-card-content>
-      <div class="filter-row">
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search users...</mat-label>
-          <input matInput [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Search by name or email">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-      </div>
-    </mat-card-content>
-  </mat-card>
+  <div class="table-container">
+    <p-table #dt [value]="filteredUsers" [paginator]="true" [rows]="5" [rowsPerPageOptions]="[5,10,20]"
+      [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      styleClass="p-datatable-striped p-datatable-gridlines p-datatable-sm"
+      [globalFilterFields]="['name','username','email','phone','role','status']">
 
-  <!-- Users Table -->
-  <mat-card class="table-card">
-    <mat-card-content>
-      <div class="table-container">
-        <table mat-table [dataSource]="filteredUsers" class="users-table" matSort>
-          <!-- Avatar Column -->
-          <ng-container matColumnDef="avatar">
-            <th mat-header-cell *matHeaderCellDef>Avatar</th>
-            <td mat-cell *matCellDef="let user">
-              <div class="user-avatar">
-                <img [src]="user.avatar || getDefaultAvatar()" 
-                     [alt]="user.name"
-                     (error)="onAvatarError($event)">
-              </div>
-            </td>
-          </ng-container>
+      <!-- Caption with title and search -->
+      <ng-template pTemplate="caption">
+        <div class="table-caption-wrapper" style="display:flex; justify-content:space-between; align-items:center;">
+          <div class="download-wrapper" style="display: flex; gap: 8px;">
+            <p-button label="Excel" icon="pi pi-file-excel" styleClass="p-button-success p-button-sm">
+            </p-button>
 
-          <!-- Name Column -->
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-            <td mat-cell *matCellDef="let user">
-              <div class="user-name">
-                <span class="name">{{ user.name }}</span>
-                <span class="username">{{ '@' }}{{ user.username }}</span>
-              </div>
-            </td>
-          </ng-container>
+            <p-button label="CSV" icon="pi pi-file" styleClass="p-button-info p-button-sm">
+            </p-button>
 
-          <!-- Email Column -->
-          <ng-container matColumnDef="email">
-            <th mat-header-cell *matHeaderCellDef>Email</th>
-            <td mat-cell *matCellDef="let user">{{ user.email }}</td>
-          </ng-container>
+            <p-button label="PDF" icon="pi pi-file-pdf" styleClass="p-button-danger p-button-sm">
+            </p-button>
+          </div>
+          <div class="search-wrapper">
+            <p-floatlabel variant="on" style="width: 100%">
+              <input pInputText id="search_user" [(ngModel)]="searchTerm" (input)="applyFilter()" autocomplete="off" />
+              <label for="search_role">Search</label>
+            </p-floatlabel>
+          </div>
 
-          <!-- Phone Column -->
-          <ng-container matColumnDef="phone">
-            <th mat-header-cell *matHeaderCellDef>Phone</th>
-            <td mat-cell *matCellDef="let user">{{ user.phone || 'N/A' }}</td>
-          </ng-container>
-
-          <!-- Role Column -->
-          <ng-container matColumnDef="role">
-            <th mat-header-cell *matHeaderCellDef>Role</th>
-            <td mat-cell *matCellDef="let user">
-              <mat-chip-set>
-                <mat-chip [ngClass]="user.role === 'admin' ? 'role-admin' : 'role-user'">
-                  {{ user.role | titlecase }}
-                </mat-chip>
-              </mat-chip-set>
-            </td>
-          </ng-container>
-
-          <!-- Status Column -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let user">
-              <mat-chip-set>
-                <mat-chip [ngClass]="'status-' + user.status">
-                  {{ user.status | titlecase }}
-                </mat-chip>
-              </mat-chip-set>
-            </td>
-          </ng-container>
-
-          <!-- Created At Column -->
-          <ng-container matColumnDef="createdAt">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
-            <td mat-cell *matCellDef="let user">{{ user.createdAt | date:'short' }}</td>
-          </ng-container>
-
-          <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let user">
-              <div class="action-buttons">
-                <button mat-icon-button 
-                        [color]="user.status === 'active' ? 'warn' : 'primary'"
-                        (click)="toggleUserStatus(user)"
-                        [matTooltip]="user.status === 'active' ? 'Deactivate' : 'Activate'">
-                  <mat-icon>{{ user.status === 'active' ? 'block' : 'check_circle' }}</mat-icon>
-                </button>
-                <button mat-icon-button color="warn" (click)="deleteUser(user)" matTooltip="Delete">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </td>
-          </ng-container>
-
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
-
-        <div *ngIf="loading" class="loading-container">
-          <mat-spinner></mat-spinner>
         </div>
+      </ng-template>
 
-        <div *ngIf="!loading && filteredUsers.length === 0" class="no-data">
-          <mat-icon>people</mat-icon>
+      <!-- Table Header -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Avatar</th>
+          <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+          <th pSortableColumn="username">Username <p-sortIcon field="username"></p-sortIcon></th>
+          <th pSortableColumn="email">Email <p-sortIcon field="email"></p-sortIcon></th>
+          <th pSortableColumn="phone">Phone <p-sortIcon field="phone"></p-sortIcon></th>
+          <th>Role</th>
+          <th>Status</th>
+          <th pSortableColumn="createdAt">Created <p-sortIcon field="createdAt"></p-sortIcon></th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- Table Body -->
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>
+            <div class="user-avatar">
+              <img [src]="user.avatar || getDefaultAvatar()" [alt]="user.name" (error)="onAvatarError($event)"
+                height="40">
+            </div>
+          </td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.username }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.phone || 'N/A' }}</td>
+          <td>
+            <p-chip *ngIf="user.role" [label]="user.role | titlecase"
+              [styleClass]="user.role === 'admin' ? 'role-admin' : 'role-user'"></p-chip>
+            <span *ngIf="!user.role">Null</span>
+          </td>
+          <td>
+            <p-chip *ngIf="user.status" [label]="user.status | titlecase"
+              [styleClass]="'status-' + user.status"></p-chip>
+            <span *ngIf="!user.status">Null</span>
+          </td>
+          <td>{{ user.createdAt | date:'mediumDate' }}</td>
+          <td>
+            <button pButton pRipple type="button" class="p-button-text p-button-info" (click)="toggleUserStatus(user)"
+              [pTooltip]="user.status === 'active' ? 'Deactivate' : 'Activate'">
+              <i [ngClass]="user.status === 'active' ? 'pi pi-ban' : 'pi pi-check'"></i>
+            </button>
+            <button pButton pRipple type="button" class="p-button-text p-button-danger ml-2" (click)="deleteUser(user)"
+              pTooltip="Delete">
+              <i class="pi pi-trash"></i>
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Empty Message -->
+      <ng-template pTemplate="emptymessage">
+        <div class="no-data">
+          <i class="pi pi-users" style="font-size:2rem;"></i>
           <p>No users found</p>
         </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
-</div>
+      </ng-template>
+
+    </p-table>
+  </div>
+</main>

@@ -10,6 +10,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
 import { AuthService } from '../../services/auth.service';
 
+import { MatGridListModule } from '@angular/material/grid-list';
+
 @Component({
   selector: 'app-login',
   standalone: true,
@@ -21,7 +23,8 @@ import { AuthService } from '../../services/auth.service';
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
-    MatIconModule
+    MatIconModule,
+    MatGridListModule
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
@@ -45,7 +48,7 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.valid) {
       this.loading = true;
-      
+
       this.authService.adminLogin(this.loginForm.value).subscribe(
         (response: any) => {
           this.loading = false;

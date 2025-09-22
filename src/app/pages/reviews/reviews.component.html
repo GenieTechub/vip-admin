@@ -1,129 +1,119 @@
 <div class="reviews-container">
-  <div class="header">
+  <div class="page-header">
     <h1>Review Management</h1>
   </div>
 
-  <!-- Filters -->
-  <mat-card class="filter-card">
-    <mat-card-content>
-      <div class="filters">
-        <mat-form-field appearance="outline">
-          <mat-label>Search reviews</mat-label>
-          <input matInput [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Search by comment or product name">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Rating</mat-label>
-          <mat-select [(ngModel)]="selectedRating" (selectionChange)="applyFilter()">
-            <mat-option value="">All Ratings</mat-option>
-            <mat-option value="5">5 Stars</mat-option>
-            <mat-option value="4">4 Stars</mat-option>
-            <mat-option value="3">3 Stars</mat-option>
-            <mat-option value="2">2 Stars</mat-option>
-            <mat-option value="1">1 Star</mat-option>
-          </mat-select>
-        </mat-form-field>
-      </div>
-    </mat-card-content>
-  </mat-card>
 
   <!-- Reviews Table -->
-  <mat-card class="table-card">
-    <mat-card-content>
-      <div class="table-container">
-        <table mat-table [dataSource]="reviews" class="reviews-table" matSort>
+  <div class="table-container">
+    <p-table [value]="reviews" [paginator]="true" [rows]="10" [loading]="loading" [sortMode]="'multiple'"
+      [responsiveLayout]="'scroll'">
+      <!-- Caption with title and search -->
+      <ng-template pTemplate="caption">
+        <div class="table-caption-wrapper">
+          <div class="download-wrapper" style="display: flex; gap: 8px;">
+            <p-button label="Excel" icon="pi pi-file-excel" styleClass="p-button-success p-button-sm">
+            </p-button>
+
+            <p-button label="CSV" icon="pi pi-file" styleClass="p-button-info p-button-sm">
+            </p-button>
+
+            <p-button label="PDF" icon="pi pi-file-pdf" styleClass="p-button-danger p-button-sm">
+            </p-button>
+          </div>
+          <div class="search-wrapper">
+            <div>
+              <p-floatlabel variant="on" style="width: 100%">
+                <input pInputText id="search_user" [(ngModel)]="searchTerm" (input)="applyFilter()"
+                  autocomplete="off" />
+                <label for="search_role">Search</label>
+              </p-floatlabel>
+            </div>
+
+            <!-- Rating Filter -->
+            <p-select [options]="ratingOptions" [(ngModel)]="selectedRating" (onChange)="applyFilter()"
+              optionLabel="label" optionValue="value" placeholder="Select Rating" styleClass="w-full md:w-56">
+            </p-select>
+          </div>
+
+        </div>
+      </ng-template>
+
+      <!-- Table Header -->
+      <ng-template pTemplate="header">
+        <tr class="thead">
+          <th pSortableColumn="product.name">Product <p-sortIcon field="product.name"></p-sortIcon></th>
+          <th>User</th>
+          <th pSortableColumn="rating">Rating <p-sortIcon field="rating"></p-sortIcon></th>
+          <th>Comment</th>
+          <th pSortableColumn="createdAt">Date <p-sortIcon field="createdAt"></p-sortIcon></th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+
+      <!-- Table Body -->
+      <ng-template pTemplate="body" let-review>
+        <tr>
           <!-- Product Column -->
-          <ng-container matColumnDef="product">
-            <th mat-header-cell *matHeaderCellDef>Product</th>
-            <td mat-cell *matCellDef="let review">
-              <div class="product-info">
-                <img [src]="getProductImageUrl(review.product)" 
-                     [alt]="review.product?.name"
-                     class="product-image">
-                <div>
-                  <div class="product-name">{{ review.product?.name || 'Unknown Product' }}</div>
-                  <div class="product-id">ID: {{ review.productId }}</div>
-                </div>
+          <td>
+            <div class="product-info" style="display: flex; gap: 0.5rem; align-items: center;">
+              <img [src]="getProductImageUrl(review.product)" [alt]="review.product?.name" class="product-image"
+                style="width: 30px; height: 30px; object-fit: cover;">
+              <div>
+                <div class="product-name">{{ review.product?.name || 'Unknown Product' }}</div>
+                <div class="product-id">ID: {{ review.productId }}</div>
               </div>
-            </td>
-          </ng-container>
+            </div>
+          </td>
 
           <!-- User Column -->
-          <ng-container matColumnDef="user">
-            <th mat-header-cell *matHeaderCellDef>User</th>
-            <td mat-cell *matCellDef="let review">
-              <div class="user-info">
-                <div class="user-name">{{ review.user?.name || 'Anonymous' }}</div>
-                <div class="user-id">ID: {{ review.userId }}</div>
-              </div>
-            </td>
-          </ng-container>
+          <td>
+            <div class="user-info">
+              <div class="user-name">{{ review.user?.name || 'Anonymous' }}</div>
+              <div class="user-id">ID: {{ review.userId }}</div>
+            </div>
+          </td>
 
           <!-- Rating Column -->
-          <ng-container matColumnDef="rating">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Rating</th>
-            <td mat-cell *matCellDef="let review">
-              <div class="rating-display">
-                <div class="stars">
-                  <mat-icon *ngFor="let star of getStarArray(review.rating)" 
-                           [class.filled]="star">star</mat-icon>
-                </div>
-                <span class="rating-number">{{ review.rating }}/5</span>
+          <td>
+            <div class="rating-display" style="display: flex; align-items: center; gap: 0.25rem;">
+              <div class="stars">
+                <mat-icon *ngFor="let star of getStarArray(review.rating)" [class.filled]="star">star</mat-icon>
               </div>
-            </td>
-          </ng-container>
+              <span>{{ review.rating }}/5</span>
+            </div>
+          </td>
 
           <!-- Comment Column -->
-          <ng-container matColumnDef="comment">
-            <th mat-header-cell *matHeaderCellDef>Comment</th>
-            <td mat-cell *matCellDef="let review">
-              <div class="comment-text" [title]="review.comment">
-                {{ review.comment | slice:0:100 }}{{ review.comment?.length > 100 ? '...' : '' }}
-              </div>
-            </td>
-          </ng-container>
+          <td>
+            <div class="comment-text" [title]="review.comment">
+              {{ review.comment | slice:0:40 }}{{ review.comment?.length > 40 ? '...' : '' }}
+            </div>
+          </td>
 
           <!-- Date Column -->
-          <ng-container matColumnDef="date">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
-            <td mat-cell *matCellDef="let review">
-              {{ review.createdAt | date:'short' }}
-            </td>
-          </ng-container>
+          <td>{{ review.createdAt | date:'short' }}</td>
 
           <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let review">
-              <div class="action-buttons">
-                <button mat-icon-button color="primary" 
-                        matTooltip="View Product" 
-                        (click)="viewProduct(review.productId)">
-                  <mat-icon>visibility</mat-icon>
-                </button>
-                <button mat-icon-button color="warn" 
-                        matTooltip="Delete Review" 
-                        (click)="deleteReview(review)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </td>
-          </ng-container>
+          <td>
+            <button pButton type="button" icon="pi pi-eye" class="p-button-rounded p-button-text p-button-info"
+              (click)="viewProduct(review.productId)" pTooltip="View Product"></button>
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
+            <button pButton type="button" icon="pi pi-trash" class="p-button-rounded p-button-text p-button-danger"
+              (click)="deleteReview(review)" pTooltip="Delete Review"></button>
+          </td>
+        </tr>
+      </ng-template>
 
-        <div *ngIf="loading" class="loading-container">
-          <mat-spinner></mat-spinner>
-        </div>
-
-        <div *ngIf="!loading && reviews.length === 0" class="no-data">
-          <mat-icon>rate_review</mat-icon>
-          <p>No reviews found</p>
-        </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+      <!-- Empty Message -->
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" style="text-align: center;">
+            <i class="pi pi-info-circle" style="font-size: 2rem;"></i>
+            <p>No reviews found</p>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 </div>

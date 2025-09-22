@@ -8,7 +8,7 @@ export const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/login',
     pathMatch: 'full'
   },
   {
@@ -48,6 +48,11 @@ export const routes: Routes = [
   {
     path: 'settings',
     loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent)
+  },
+  {
+    path: 'roles',
+    loadComponent: () => import('./pages/roles/roles.component').then(m => m.RolesComponent),
+    canActivate: [AuthGuard]
   },
   {
     path: '**',

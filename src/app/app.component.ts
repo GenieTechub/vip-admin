@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatBadgeModule } from '@angular/material/badge';
 import { AuthService } from './services/auth.service';
+import { CdkTableModule } from "@angular/cdk/table";
 
 @Component({
   selector: 'app-root',
@@ -23,8 +24,9 @@ import { AuthService } from './services/auth.service';
     MatIconModule,
     MatButtonModule,
     MatMenuModule,
-    MatBadgeModule
-  ],
+    MatBadgeModule,
+    CdkTableModule
+],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
@@ -43,12 +45,12 @@ export class AppComponent {
     { path: '/users', icon: 'people', label: 'Users' },
     { path: '/categories', icon: 'category', label: 'Categories' },
     { path: '/products', icon: 'inventory', label: 'Products' },
+    { path: '/roles', icon: 'add_moderator', label: 'Roles' },
     { path: '/reviews', icon: 'rate_review', label: 'Reviews' },
     { path: '/orders', icon: 'shopping_cart', label: 'Orders' },
     { path: '/analytics', icon: 'analytics', label: 'Analytics' },
     { path: '/settings', icon: 'settings', label: 'Settings' }
   ];
-
   toggleSidenav() {
     this.sidenavOpened = !this.sidenavOpened;
   }

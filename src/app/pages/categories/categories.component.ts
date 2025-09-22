@@ -1,40 +1,39 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatSortModule } from '@angular/material/sort';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialogModule } from '@angular/material/dialog';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CategoryService } from '../../services/category.service';
-import { MatDialog } from '@angular/material/dialog';
-import { CategoryDialogComponent } from './category-dialog/category-dialog.component';
+
+// PrimeNG Modules
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { ChipModule } from 'primeng/chip';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { RippleModule } from 'primeng/ripple';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { DialogModule } from 'primeng/dialog';
+import { CheckboxModule } from 'primeng/checkbox';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
-    MatTableModule,
-    MatButtonModule,
-    MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatChipsModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatDialogModule,
-    FormsModule
+    FormsModule,
+    ReactiveFormsModule,
+    TableModule,
+    ButtonModule,
+    InputTextModule,
+    ChipModule,
+    TooltipModule,
+    CardModule,
+    ProgressSpinnerModule,
+    RippleModule,
+    FloatLabelModule,
+    DialogModule,
+    CheckboxModule
   ],
   templateUrl: './categories.component.html',
   styleUrls: ['./categories.component.scss']
@@ -44,90 +43,132 @@ export class CategoriesComponent implements OnInit {
   filteredCategories: any[] = [];
   loading = false;
   searchTerm = '';
-  
-  displayedColumns: string[] = ['name', 'description', 'status', 'createdAt', 'actions'];
 
-  constructor(
-    private categoryService: CategoryService,
-    private dialog: MatDialog
-  ) {}
+  displayDialog: boolean = false;
+  isEditMode: boolean = false;
+  selectedCategory: any = null;
+
+  categoryForm: FormGroup;
+  imagePreview: string | null = null;
+  selectedFile: File | null = null;
+
+  constructor(private categoryService: CategoryService, private fb: FormBuilder) {
+    this.categoryForm = this.fb.group({
+      name: ['', [Validators.required, Validators.minLength(2)]],
+      description: ['', [Validators.required, Validators.minLength(10)]],
+      isActive: [true]
+    });
+  }
 
   ngOnInit() {
     this.loadCategories();
   }
 
-  applyFilter() {
-    // Clear any existing timeout
-    if (this.searchTimeout) {
-      clearTimeout(this.searchTimeout);
+  loadCategories() {
+    this.loading = true;
+    const params: any = {};
+    if (this.searchTerm.trim()) {
+      params.search = this.searchTerm.trim();
     }
-    
-    // Add debouncing for better performance
+
+    this.categoryService.getCategories(params).subscribe({
+      next: (res: any) => {
+        this.categories = res.categories || [];
+        this.filteredCategories = [...this.categories];
+        this.loading = false;
+      },
+      error: () => (this.loading = false)
+    });
+  }
+
+  applyFilter() {
+    if (this.searchTimeout) clearTimeout(this.searchTimeout);
+
     this.searchTimeout = setTimeout(() => {
-      this.loadCategories();
+      this.filteredCategories = this.categories.filter(c =>
+        c.name.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        (c.description?.toLowerCase().includes(this.searchTerm.toLowerCase()))
+      );
     }, 300);
   }
 
-  loadCategories() {
-    this.loading = true;
-    
-    // Build query parameters for backend filtering
-    const params: any = {};
-    
-    if (this.searchTerm && this.searchTerm.trim()) {
-      params.search = this.searchTerm.trim();
+  openAddDialog() {
+    this.selectedCategory = null;
+    this.isEditMode = false;
+    this.categoryForm.reset({ isActive: true });
+    this.imagePreview = null;
+    this.displayDialog = true;
+  }
+
+  openEditDialog(category: any) {
+    this.selectedCategory = { ...category };
+    this.isEditMode = true;
+    this.categoryForm.patchValue(category);
+    this.imagePreview = category.imageUrl || null;
+    this.displayDialog = true;
+  }
+
+  onFileSelected(event: any) {
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = e => (this.imagePreview = reader.result as string);
+      reader.readAsDataURL(file);
     }
-    
-    this.categoryService.getCategories(params).subscribe(
-      (response: any) => {
-        this.categories = response.categories || [];
-        this.filteredCategories = [...this.categories]; // No need for frontend filtering anymore
-        this.loading = false;
-      },
-      (error: any) => {
-        console.error('Error loading categories:', error);
-        this.loading = false;
+  }
+
+  removeImage() {
+    this.selectedFile = null;
+    this.imagePreview = null;
+  }
+
+  onCancel() {
+    this.displayDialog = false;
+    this.categoryForm.reset();
+    this.imagePreview = null;
+    this.selectedFile = null;
+  }
+
+  onSubmit() {
+    if (this.categoryForm.invalid) return;
+
+    const formData = { ...this.categoryForm.value };
+
+    if (this.selectedFile) {
+      // Upload the image first
+      this.categoryService.uploadCategoryImage(this.selectedFile).subscribe({
+        next: (res: any) => {
+          formData.imageUrl = res.imageUrl;
+          this.saveCategory(formData);
+        },
+        error: () => alert('Error uploading image')
+      });
+    } else {
+      if (this.isEditMode && this.selectedCategory?.imageUrl) {
+        formData.imageUrl = this.selectedCategory.imageUrl;
       }
-    );
+      this.saveCategory(formData);
+    }
+  }
+
+  private saveCategory(formData: any) {
+    const operation = this.isEditMode
+      ? this.categoryService.updateCategory(this.selectedCategory.id, formData)
+      : this.categoryService.createCategory(formData);
+
+    operation.subscribe({
+      next: () => {
+        this.displayDialog = false;
+        this.loadCategories();
+      },
+      error: () => alert('Error saving category')
+    });
   }
 
   deleteCategory(category: any) {
-    if (confirm(`Are you sure you want to delete category "${category.name}"?`)) {
-      this.categoryService.deleteCategory(category._id).subscribe(
-        (response: any) => {
-          this.loadCategories();
-        },
-        (error: any) => {
-          console.error('Error deleting category:', error);
-        }
-      );
-    }
-  }
-
-  openAddDialog(): void {
-    const dialogRef = this.dialog.open(CategoryDialogComponent, {
-      width: '500px',
-      data: null
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadCategories();
-      }
-    });
-  }
-
-  openEditDialog(category: any): void {
-    const dialogRef = this.dialog.open(CategoryDialogComponent, {
-      width: '500px',
-      data: category
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (result) {
-        this.loadCategories();
-      }
-    });
+    if (!confirm(`Delete category "${category.name}"?`)) return;
+    this.categoryService.deleteCategory(category.id).subscribe(() => this.loadCategories());
   }
 
   private searchTimeout: any;

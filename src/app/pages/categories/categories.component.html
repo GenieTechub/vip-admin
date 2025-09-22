@@ -4,91 +4,167 @@
     <p>Manage product categories</p>
   </div>
 
-  <!-- Search and Filters -->
-  <mat-card class="filter-card">
-    <mat-card-content>
-      <div class="filter-row">
-        <mat-form-field appearance="outline" class="search-field">
-          <mat-label>Search categories...</mat-label>
-          <input matInput [(ngModel)]="searchTerm" (input)="applyFilter()" placeholder="Search by name or description">
-          <mat-icon matSuffix>search</mat-icon>
-        </mat-form-field>
-        
-        <button mat-raised-button color="primary" (click)="openAddDialog()">
-          <mat-icon>add</mat-icon>
-          Add Category
-        </button>
-      </div>
-    </mat-card-content>
-  </mat-card>
-
   <!-- Categories Table -->
-  <mat-card class="table-card">
-    <mat-card-content>
-      <div class="table-container">
-        <table mat-table [dataSource]="filteredCategories" class="categories-table" matSort>
-          <!-- Name Column -->
-          <ng-container matColumnDef="name">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
-            <td mat-cell *matCellDef="let category">
-              <span class="category-name">{{ category.name }}</span>
-            </td>
-          </ng-container>
 
-          <!-- Description Column -->
-          <ng-container matColumnDef="description">
-            <th mat-header-cell *matHeaderCellDef>Description</th>
-            <td mat-cell *matCellDef="let category">
-              <span class="category-description">{{ category.description || 'No description' }}</span>
-            </td>
-          </ng-container>
 
-          <!-- Status Column -->
-          <ng-container matColumnDef="status">
-            <th mat-header-cell *matHeaderCellDef>Status</th>
-            <td mat-cell *matCellDef="let category">
-              <mat-chip-set>
-                <mat-chip [ngClass]="'status-' + category.status">
-                  {{ category.status | titlecase }}
-                </mat-chip>
-              </mat-chip-set>
-            </td>
-          </ng-container>
+  <div class="table-container">
 
-          <!-- Created At Column -->
-          <ng-container matColumnDef="createdAt">
-            <th mat-header-cell *matHeaderCellDef mat-sort-header>Created</th>
-            <td mat-cell *matCellDef="let category">{{ category.createdAt | date:'short' }}</td>
-          </ng-container>
 
-          <!-- Actions Column -->
-          <ng-container matColumnDef="actions">
-            <th mat-header-cell *matHeaderCellDef>Actions</th>
-            <td mat-cell *matCellDef="let category">
-              <div class="action-buttons" (click)="openEditDialog(category)">
-                <button mat-icon-button color="primary" matTooltip="Edit">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button color="warn" (click)="deleteCategory(category)" matTooltip="Delete">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </div>
-            </td>
-          </ng-container>
+    <p-table [value]="filteredCategories" [paginator]="true" [rows]="10" [rowsPerPageOptions]="[5,10,20]"
+      [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+      styleClass="p-datatable-striped p-datatable-gridlines p-datatable-sm"
+      [globalFilterFields]="['name','description']">
 
-          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-          <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-        </table>
+      <ng-template pTemplate="caption">
+        <div class=" table-caption-wrapper">
+          <div class="download-wrapper" style="display: flex; gap: 8px;">
+            <p-button label="Excel" icon="pi pi-file-excel" styleClass="p-button-success p-button-sm">
+            </p-button>
 
-        <div *ngIf="loading" class="loading-container">
-          <mat-spinner></mat-spinner>
+            <p-button label="CSV" icon="pi pi-file" styleClass="p-button-info p-button-sm">
+            </p-button>
+
+            <p-button label="PDF" icon="pi pi-file-pdf" styleClass="p-button-danger p-button-sm">
+            </p-button>
+          </div>
+          <div class="search-wrapper" style="display:flex; gap:0.5rem; align-items:center;">
+            <p-floatlabel variant="on" style="width: 100%">
+              <input pInputText id="search_user" [(ngModel)]="searchTerm" (input)="applyFilter()" autocomplete="off" />
+              <label for="search_role">Search</label>
+            </p-floatlabel>
+            <button (click)="openAddDialog()">Add</button>
+          </div>
         </div>
+      </ng-template>
+      <!-- Table Header -->
+      <ng-template pTemplate="header">
+        <tr>
+          <th pSortableColumn="name">Name <p-sortIcon field="name"></p-sortIcon></th>
+          <th>Description</th>
+          <th>Status</th>
+          <th pSortableColumn="createdAt">Created <p-sortIcon field="createdAt"></p-sortIcon></th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
 
-        <div *ngIf="!loading && filteredCategories.length === 0" class="no-data">
-          <mat-icon>category</mat-icon>
+      <!-- Table Body -->
+      <ng-template pTemplate="body" let-category>
+        <tr>
+          <td>{{ category.name }}</td>
+          <td>{{ category.description || 'No description' }}</td>
+          <td>
+            <p-chip [label]="category.status | titlecase" [styleClass]="'status-' + category.status"></p-chip>
+          </td>
+          <td>{{ category.createdAt | date:'short' }}</td>
+          <td>
+            <button pButton pRipple type="button" icon="pi pi-pencil"
+              class="p-button-rounded p-button-text p-button-info" (click)="openEditDialog(category)"
+              pTooltip="Edit"></button>
+            <button pButton pRipple type="button" icon="pi pi-trash"
+              class="p-button-rounded p-button-text p-button-danger ml-2" (click)="deleteCategory(category)"
+              pTooltip="Delete"></button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <!-- Empty Message -->
+      <ng-template pTemplate="emptymessage">
+        <div class="no-data" style="text-align:center; padding:1rem;">
+          <i class="pi pi-folder" style="font-size:2rem;"></i>
           <p>No categories found</p>
         </div>
-      </div>
-    </mat-card-content>
-  </mat-card>
+      </ng-template>
+
+    </p-table>
+  </div>
+  <!-- Loading Spinner -->
+  <div *ngIf="loading" class="loading-container" style="text-align:center; margin-top:1rem;">
+    <p-progressSpinner></p-progressSpinner>
+  </div>
 </div>
+
+
+
+<p-dialog header="{{ isEditMode ? 'Edit Category' : 'Add New Category' }}" [(visible)]="displayDialog" [modal]="true"
+  [closable]="false" [style]="{ width: '500px' }">
+
+  <form [formGroup]="categoryForm">
+
+    <!-- Image Upload Section -->
+    <div class="p-d-flex p-flex-column p-ai-center p-mb-4">
+      <div *ngIf="imagePreview" class="p-mb-2" style="position:relative;">
+        <img [src]="imagePreview" alt="Preview" style="max-width:150px; max-height:150px; border-radius:4px;">
+        <button type="button" pButton icon="pi pi-times" class="p-button-rounded p-button-danger"
+          style="position:absolute; top:-10px; right:-10px;" (click)="removeImage()"></button>
+      </div>
+
+      <div class="p-d-flex p-flex-column p-ai-center p-jc-center text-center">
+        <!-- Upload box (only visible when no image is selected) -->
+        <div *ngIf="!imagePreview" class="p-d-flex p-flex-column p-ai-center p-jc-center text-center cat-image"
+          (click)="fileInput.click()">
+          <i class="pi pi-cloud-upload" style="font-size:2rem;"></i>
+          <p>Click to upload category image</p>
+        </div>
+
+        <!-- Hidden File Input -->
+        <input type="file" id="catImage" #fileInput (change)="onFileSelected($event)" accept="image/*" hidden />
+
+        <!-- Button to trigger file selection -->
+        <div style="display: flex; align-items: center; justify-content: center;">
+          <button type="button" pButton label="{{ imagePreview ? 'Change Image' : 'Upload Image' }}" icon="pi pi-image"
+            class="p-button-outlined p-mt-2" (click)="fileInput.click()">
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Category Name -->
+    <div class="input-wrapper">
+      <label for="categoryName">Category Name</label>
+      <input id="categoryName" pInputText formControlName="name"
+        [ngClass]="{'p-invalid': categoryForm.get('name')?.invalid && categoryForm.get('name')?.touched}">
+      <small *ngIf="categoryForm.get('name')?.hasError('required') && categoryForm.get('name')?.touched"
+        class="p-error">
+        Category name is required
+      </small>
+      <small *ngIf="categoryForm.get('name')?.hasError('minlength') && categoryForm.get('name')?.touched"
+        class="p-error">
+        Name must be at least 2 characters
+      </small>
+    </div>
+
+    <!-- Description -->
+    <div class="input-wrapper">
+      <label for="categoryDescription">Description</label>
+      <textarea style="padding: 10px;" id="categoryDescription" pInputTextarea formControlName="description" rows="4"
+        [ngClass]="{'p-invalid': categoryForm.get('description')?.invalid && categoryForm.get('description')?.touched}"
+        placeholder="Enter category description..."></textarea>
+      <small *ngIf="categoryForm.get('description')?.hasError('required') && categoryForm.get('description')?.touched"
+        class="p-error">
+        Description is required
+      </small>
+      <small *ngIf="categoryForm.get('description')?.hasError('minlength') && categoryForm.get('description')?.touched"
+        class="p-error">
+        Description must be at least 10 characters
+      </small>
+    </div>
+
+    <!-- Active Checkbox -->
+    <div class="p-field-checkbox p-mb-4 p-gap-2">
+      <p-checkbox formControlName="isActive" binary="true" label="Active Category"></p-checkbox>&nbsp;
+      <label for="ingredient1" class="ml-2">Active Category</label>
+    </div> <br />
+
+    <!-- Actions -->
+    <div class="p-d-flex p-jc-end p-gap-2 p-input-footer">
+      <button type="button" pButton label="Cancel" class="p-button-text" (click)="onCancel()"
+        [disabled]="loading"></button>
+      <button type="button" pButton label="{{ isEditMode ? 'Update Category' : 'Create Category' }}"
+        class="p-button-primary" (click)="onSubmit()" [disabled]="categoryForm.invalid || loading">
+        <span *ngIf="loading">{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
+      </button>
+    </div>
+
+  </form>
+</p-dialog>

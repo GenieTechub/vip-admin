@@ -1,8 +1,8 @@
 <div class="category-dialog">
   <h2 mat-dialog-title>{{ isEditMode ? 'Edit Category' : 'Add New Category' }}</h2>
-  
+
   <mat-dialog-content>
-    <form [formGroup]="categoryForm" class="category-form">
+    <form [formGroup]="categoryForm" class="form-wrapper">
       <!-- Image Upload Section -->
       <div class="image-upload-section">
         <div class="image-preview" *ngIf="imagePreview">
@@ -11,22 +11,15 @@
             <mat-icon>close</mat-icon>
           </button>
         </div>
-        
+
         <div class="upload-area" *ngIf="!imagePreview">
           <mat-icon>cloud_upload</mat-icon>
           <p>Click to upload category image</p>
         </div>
-        
-        <input type="file" 
-               #fileInput 
-               (change)="onFileSelected($event)" 
-               accept="image/*" 
-               style="display: none;">
-        
-        <button mat-stroked-button 
-                type="button" 
-                (click)="fileInput.click()"
-                class="upload-button">
+
+        <input type="file" #fileInput (change)="onFileSelected($event)" accept="image/*" style="display: none;">
+
+        <button mat-stroked-button type="button" (click)="fileInput.click()" class="upload-button">
           <mat-icon>add_photo_alternate</mat-icon>
           {{ imagePreview ? 'Change Image' : 'Upload Image' }}
         </button>
@@ -46,11 +39,8 @@
 
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Description</mat-label>
-        <textarea matInput 
-                  formControlName="description" 
-                  rows="4" 
-                  required
-                  placeholder="Enter category description..."></textarea>
+        <textarea matInput formControlName="description" rows="4" required
+          placeholder="Enter category description..."></textarea>
         <mat-error *ngIf="categoryForm.get('description')?.hasError('required')">
           Description is required
         </mat-error>
@@ -71,10 +61,7 @@
     <button mat-button (click)="onCancel()" [disabled]="loading">
       Cancel
     </button>
-    <button mat-raised-button 
-            color="primary" 
-            (click)="onSubmit()" 
-            [disabled]="categoryForm.invalid || loading">
+    <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="categoryForm.invalid || loading">
       <span *ngIf="loading">{{ isEditMode ? 'Updating...' : 'Creating...' }}</span>
       <span *ngIf="!loading">{{ isEditMode ? 'Update Category' : 'Create Category' }}</span>
     </button>

@@ -106,7 +106,6 @@
 }
 
 mat-dialog-actions {
-  padding: 16px 0 0 0;
   gap: 12px;
   
   button {
@@ -139,4 +138,9 @@ mat-dialog-actions {
       width: 100%;
     }
   }
+}
+
+
+::-webkit-scrollbar{
+  display: none !important;
 }

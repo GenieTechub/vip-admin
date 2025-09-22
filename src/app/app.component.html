@@ -1,21 +1,21 @@
 <div *ngIf="shouldShowLayout(); else loginView">
-  <mat-toolbar color="primary" class="toolbar">
+  <mat-toolbar color="primary" class="toolbar" [ngClass]="{'header-left': !sidenavOpened}">
     <button mat-icon-button (click)="toggleSidenav()" class="menu-button">
       <mat-icon>menu</mat-icon>
     </button>
-    
+
     <span class="toolbar-title">{{ title }}</span>
-    
+
     <span class="toolbar-spacer"></span>
-    
+
     <button mat-icon-button [matMenuTriggerFor]="userMenu">
       <mat-icon matBadge="3" matBadgeColor="warn">notifications</mat-icon>
     </button>
-    
+
     <button mat-icon-button [matMenuTriggerFor]="userMenu">
       <mat-icon>account_circle</mat-icon>
     </button>
-    
+
     <mat-menu #userMenu="matMenu">
       <button mat-menu-item>
         <mat-icon>person</mat-icon>
@@ -29,23 +29,19 @@
   </mat-toolbar>
 
   <mat-sidenav-container class="sidenav-container">
-    <mat-sidenav 
-      #sidenav 
-      [opened]="sidenavOpened" 
-      mode="side" 
-      class="sidenav">
-      
+    <mat-sidenav #sidenav [opened]="sidenavOpened" mode="side" class="sidenav">
+      <div style="padding: 30px 20px;">
+        <img src="https://themesdesign.in/nazox/layouts/assets/images/logo-light.png" alt="" height="20">
+      </div>
       <mat-nav-list>
-        <a mat-list-item 
-           *ngFor="let item of menuItems" 
-           [routerLink]="item.path"
-           routerLinkActive="active-link">
+        <a class="sidelink" mat-list-item *ngFor="let item of menuItems" [routerLink]="item.path"
+          routerLinkActive="active-link">
           <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
           <span matListItemTitle>{{ item.label }}</span>
         </a>
       </mat-nav-list>
     </mat-sidenav>
-    
+
     <mat-sidenav-content class="main-content">
       <router-outlet></router-outlet>
     </mat-sidenav-content>

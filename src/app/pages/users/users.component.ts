@@ -12,7 +12,21 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormsModule } from '@angular/forms';
-import { UserService } from '../../services/user.service';
+import { UserService } from '../../services/user.service';;
+
+// PrimeNG modules
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { ChipModule } from 'primeng/chip';
+import { TooltipModule } from 'primeng/tooltip';
+import { CardModule } from 'primeng/card';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { RippleModule } from 'primeng/ripple';
+// import { IconModule } from 'primeng/icon'; // For PrimeIcons usage
+
+
+import { FloatLabelModule } from 'primeng/floatlabel';
 
 @Component({
   selector: 'app-users',
@@ -30,7 +44,16 @@ import { UserService } from '../../services/user.service';
     MatSortModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    FormsModule
+    FormsModule,
+    TableModule,
+    ButtonModule,
+    InputTextModule,
+    ChipModule,
+    TooltipModule,
+    CardModule,
+    ProgressSpinnerModule,
+    RippleModule,
+    FloatLabelModule
   ],
   templateUrl: './users.component.html',
   styleUrls: ['./users.component.scss']
@@ -40,10 +63,10 @@ export class UsersComponent implements OnInit {
   filteredUsers: any[] = [];
   loading = false;
   searchTerm = '';
-  
+
   displayedColumns: string[] = ['avatar', 'name', 'email', 'phone', 'role', 'status', 'createdAt', 'actions'];
 
-  constructor(private userService: UserService) {}
+  constructor(private userService: UserService) { }
 
   ngOnInit() {
     this.loadUsers();
@@ -65,8 +88,8 @@ export class UsersComponent implements OnInit {
   }
 
   applyFilter() {
-    this.filteredUsers = this.users.filter(user => 
-      !this.searchTerm || 
+    this.filteredUsers = this.users.filter(user =>
+      !this.searchTerm ||
       user.name?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
       user.email?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
@@ -97,7 +120,7 @@ export class UsersComponent implements OnInit {
   }
 
   getDefaultAvatar(): string {
-    return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNmNWY1ZjUiLz4KPHN2ZyB4PSI4IiB5PSI4IiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSI+CjxwYXRoIGQ9Ik0xMiAxMkM5Ljc5IDEyIDggMTAuMjEgOCA4UzkuNzkgNCA1IDRTMTYgNS43OSAxNiA4UzE0LjIxIDEyIDEyIDEyWk0xMiAxNEM5LjMzIDE0IDQgMTUuMzQgNCAyMFYyMkgyMFYyMEMxNiAxNS4zNCAxNC42NyAxNCAxMiAxNFoiIGZpbGw9IiM5OTkiLz4KPHN2Zz4KPHN2Zz4=';
+    return 'https://static.vecteezy.com/system/resources/thumbnails/009/734/564/small_2x/default-avatar-profile-icon-of-social-media-user-vector.jpg';
   }
 
   onAvatarError(event: any): void {
