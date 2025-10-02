@@ -40,6 +40,10 @@
             </mat-error>
           </mat-form-field>
 
+          <div *ngIf="errorMessage" class="error-message">
+            {{ errorMessage }}
+          </div>
+
           <button mat-raised-button color="primary" type="submit" class="login-button full-width"
             [disabled]="loading || !loginForm.valid">
             <mat-spinner diameter="20" *ngIf="loading"></mat-spinner>

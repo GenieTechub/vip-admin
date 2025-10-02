@@ -27,6 +27,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'subcategories',
+    loadComponent: () => import('./pages/subcategories/subcategories.component').then(m => m.SubcategoriesComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'reviews',
     loadComponent: () => import('./pages/reviews/reviews.component').then(m => m.ReviewsComponent),
     canActivate: [AuthGuard]

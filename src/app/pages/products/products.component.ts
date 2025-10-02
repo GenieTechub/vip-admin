@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
 
 // PrimeNG imports
 import { TableModule } from 'primeng/table';
@@ -14,6 +15,7 @@ import { DialogModule } from 'primeng/dialog';
 
 import { CategoryService } from '../../services/category.service';
 import { ProductService } from '../../services/product.service';
+import { SubcategoryService } from '../../services/subcategory.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ProductDialogComponent } from './product-dialog/product-dialog.component';
 import { FloatLabelModule } from 'primeng/floatlabel';
@@ -41,20 +43,38 @@ export class ProductsComponent implements OnInit {
   products: any[] = [];
   filteredProducts: any[] = [];
   categories: any[] = [];
+  subcategories: any[] = [];
   loading = false;
   searchTerm = '';
   selectedCategory: any = '';
+  selectedSubcategory: any = '';
   selectedStatus: any = '';
+  subcategoryFilter: any = null;
 
   constructor(
     private productService: ProductService,
     private categoryService: CategoryService,
-    private dialog: MatDialog
+    private subcategoryService: SubcategoryService,
+    private dialog: MatDialog,
+    private route: ActivatedRoute,
+    private router: Router
   ) { }
 
   ngOnInit() {
+    // Check for subcategory filter from query params
+    this.route.queryParams.subscribe(params => {
+      if (params['subcategoryId']) {
+        this.subcategoryFilter = {
+          id: params['subcategoryId'],
+          name: params['subcategoryName'] || 'Selected Subcategory'
+        };
+        this.selectedSubcategory = params['subcategoryId'];
+      }
+    });
+    
     this.loadProducts();
     this.loadCategories();
+    this.loadSubcategories();
   }
 
   loadProducts(): void {
@@ -67,21 +87,39 @@ export class ProductsComponent implements OnInit {
     if (this.selectedCategory) {
       params.categoryId = this.selectedCategory;
     }
+    if (this.selectedSubcategory) {
+      params.subcategoryId = this.selectedSubcategory;
+    }
     if (this.selectedStatus) {
       params.status = this.selectedStatus;
     }
 
-    this.productService.getAdminProducts(params).subscribe({
-      next: (response: any) => {
-        this.products = response.products || [];
-        this.filteredProducts = [...this.products];
-        this.loading = false;
-      },
-      error: (error: any) => {
-        console.error('Error loading admin products:', error);
-        this.loading = false;
-      }
-    });
+    // If we have a subcategory filter, use the subcategory products endpoint
+    if (this.selectedSubcategory) {
+      this.subcategoryService.getSubcategoryProducts(this.selectedSubcategory, params).subscribe({
+        next: (response: any) => {
+          this.products = response.products || [];
+          this.filteredProducts = [...this.products];
+          this.loading = false;
+        },
+        error: (error: any) => {
+          console.error('Error loading subcategory products:', error);
+          this.loading = false;
+        }
+      });
+    } else {
+      this.productService.getAdminProducts(params).subscribe({
+        next: (response: any) => {
+          this.products = response.products || [];
+          this.filteredProducts = [...this.products];
+          this.loading = false;
+        },
+        error: (error: any) => {
+          console.error('Error loading admin products:', error);
+          this.loading = false;
+        }
+      });
+    }
   }
 
   loadCategories() {
@@ -93,6 +131,36 @@ export class ProductsComponent implements OnInit {
         console.error('Error loading categories:', error);
       }
     );
+  }
+
+  loadSubcategories() {
+    this.subcategoryService.getSubcategories().subscribe(
+      (response: any) => {
+        this.subcategories = response.subcategories || [];
+      },
+      (error: any) => {
+        console.error('Error loading subcategories:', error);
+      }
+    );
+  }
+
+  onCategoryChange() {
+    // Reset subcategory when category changes
+    this.selectedSubcategory = '';
+    this.subcategoryFilter = null;
+    this.loadProducts();
+  }
+
+  onSubcategoryChange() {
+    this.subcategoryFilter = this.selectedSubcategory ? 
+      this.subcategories.find(s => s.id === this.selectedSubcategory) : null;
+    this.loadProducts();
+  }
+
+  clearSubcategoryFilter() {
+    this.selectedSubcategory = '';
+    this.subcategoryFilter = null;
+    this.router.navigate(['/products']);
   }
 
   applyFilter() {

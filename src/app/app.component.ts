@@ -44,6 +44,7 @@ export class AppComponent {
     { path: '/dashboard', icon: 'dashboard', label: 'Dashboard' },
     { path: '/users', icon: 'people', label: 'Users' },
     { path: '/categories', icon: 'category', label: 'Categories' },
+    { path: '/subcategories', icon: 'subdirectory_arrow_right', label: 'Subcategories' },
     { path: '/products', icon: 'inventory', label: 'Products' },
     { path: '/roles', icon: 'add_moderator', label: 'Roles' },
     { path: '/reviews', icon: 'rate_review', label: 'Reviews' },

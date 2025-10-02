@@ -1,0 +1,21 @@
+{
+  "name": "vipshop-backend",
+  "version": "1.0.0",
+  "description": "Backend server for VIP Shop Admin Panel",
+  "main": "backend-server.js",
+  "scripts": {
+    "start": "node backend-server.js",
+    "dev": "nodemon backend-server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "keywords": ["express", "api", "admin", "vipshop"],
+  "author": "VIP Shop Team",
+  "license": "MIT"
+}
+

@@ -4,8 +4,16 @@
     <p>Manage all products in your store</p>
   </div>
 
-  <!-- Filters -->
-
+  <!-- Subcategory Filter Banner -->
+  <div *ngIf="subcategoryFilter" class="subcategory-filter-banner">
+    <div class="filter-info">
+      <i class="pi pi-filter"></i>
+      <span>Showing products for subcategory: <strong>{{ subcategoryFilter.name }}</strong></span>
+    </div>
+    <button pButton type="button" icon="pi pi-times" class="p-button-text p-button-sm" 
+            (click)="clearSubcategoryFilter()" pTooltip="Clear filter">
+    </button>
+  </div>
 
   <!-- Products Table -->
   <div class="table-container">
@@ -31,7 +39,11 @@
               <label for="search_role">Search</label>
             </p-floatlabel>
             <p-select [options]="categories" [(ngModel)]="selectedCategory" optionLabel="name" optionValue="_id"
-              placeholder="All Categories" (onChange)="applyFilter()">
+              placeholder="All Categories" (onChange)="onCategoryChange()">
+            </p-select>
+
+            <p-select [options]="subcategories" [(ngModel)]="selectedSubcategory" optionLabel="name" optionValue="id"
+              placeholder="All Subcategories" (onChange)="onSubcategoryChange()">
             </p-select>
 
 

@@ -33,6 +33,7 @@ export class LoginComponent {
   loginForm: FormGroup;
   loading = false;
   hidePassword = true;
+  errorMessage = '';
 
   constructor(
     private fb: FormBuilder,
@@ -48,19 +49,25 @@ export class LoginComponent {
   onSubmit() {
     if (this.loginForm.valid) {
       this.loading = true;
+      this.errorMessage = '';
 
-      this.authService.adminLogin(this.loginForm.value).subscribe(
-        (response: any) => {
+      this.authService.adminLogin(this.loginForm.value).subscribe({
+        next: (response: any) => {
           this.loading = false;
-          localStorage.setItem('adminToken', response.token);
-          localStorage.setItem('adminUser', JSON.stringify(response.user));
-          this.router.navigate(['/dashboard']);
+          if (response && response.token) {
+            localStorage.setItem('adminToken', response.token);
+            localStorage.setItem('adminUser', JSON.stringify(response.user || response));
+            this.router.navigate(['/dashboard']);
+          } else {
+            this.errorMessage = 'Invalid response from server';
+          }
         },
-        (error: any) => {
+        error: (error: any) => {
           this.loading = false;
           console.error('Login error:', error);
+          this.errorMessage = error.error?.message || error.message || 'Login failed. Please check your credentials.';
         }
-      );
+      });
     }
   }
 
